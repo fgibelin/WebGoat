@@ -22,7 +22,7 @@ jobs:
     env:
       JFROG_CLI_BUILD_NAME: 'WebGoat from GitHub workflow'
       JFROG_CLI_BUILD_NUMBER: ${{ github.run_number }}
-      JFROG_CLI_BUILD_PROJECT: "fg"
+      JFROG_CLI_BUILD_PROJECT: ${{ vars.JF_PROJECT }}
       JFROG_CLI_LOG_LEVEL: INFO
 
     steps:
@@ -40,7 +40,7 @@ jobs:
         name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
         env:
-          JF_URL: ${{ secrets.JF_URL }}
+          JF_URL: ${{ vars.JF_URL }}
           JF_USER: ${{ secrets.JF_USER }}
           JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
       -

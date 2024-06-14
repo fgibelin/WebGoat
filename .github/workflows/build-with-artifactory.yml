@@ -1,0 +1,101 @@
+name: "Build WebGoat with JFrog Artifactory"
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: 'Build WebGoat'
+    strategy:
+      matrix:
+        os: 
+          - ubuntu-latest
+        java:
+          - '17'
+    runs-on: ${{ matrix.os }}
+
+    env:
+      JFROG_CLI_BUILD_NAME: 'WebGoat from GitHub workflow'
+      JFROG_CLI_BUILD_NUMBER: ${{ github.run_number }}
+      JFROG_CLI_BUILD_PROJECT: "fg"
+      JFROG_CLI_LOG_LEVEL: INFO
+
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -   
+        name: Set up JDK ${{matrix.java}}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{matrix.java}}
+          architecture: x64
+      - 
+        name: Setup JFrog CLI
+        uses: jfrog/setup-jfrog-cli@v4
+        env:
+          JF_URL: ${{ secrets.JF_URL }}
+          JF_USER: ${{ secrets.JF_USER }}
+          JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
+      -
+        name: Read POM
+        run: |
+          echo "webgoatArtifactName=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> $GITHUB_ENV
+          echo "webgoatVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+      -
+        name: Run Source Code Audit
+        run: |
+          jf audit --licenses --format=table --mvn=true
+      -
+        name: Build Maven package
+        run: |
+          jf mvn-config --repo-resolve-releases fg-maven --repo-resolve-snapshots fg-maven --repo-deploy-releases fg-maven-dev-local-releases --repo-deploy-snapshots fg-maven-dev-local-snapshots
+          jf mvn clean install -DskipTests=true --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
+      -
+        name: Scan Maven package
+        run: |
+          jf scan --watches fredericg-dev-watch --licenses --format=json ./target/${{ env.webgoatArtifactName }}-${{ env.webgoatVersion }}.jar
+      -
+        name: Deploy Maven package to Artifactory
+        if: github.ref == 'refs/heads/main'
+        run: |
+          jf mvn deploy -Dmaven.main.skip=true -Dmaven.install.skip=true -DskipTests --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
+      -
+        name: Build Docker image
+        if: github.ref == 'refs/heads/main'
+        run: |
+          jf docker build -f Dockerfile -t soleng.jfrog.io/fg-docker/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} .
+          jf docker push soleng.jfrog.io/fg-docker/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
+      -
+        name: Scan Docker image
+        if: github.ref == 'refs/heads/main'
+        run: |
+          jf docker scan soleng.jfrog.io/fg-docker/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --severity='HIGH,CRITICAL'
+      -
+        name: Publish build info
+        if: github.ref == 'refs/heads/main'
+        run: |
+          jf rt build-publish --project ${{ env.JFROG_CLI_BUILD_PROJECT }} "${{ env.JFROG_CLI_BUILD_NAME }}" "${{ env.JFROG_CLI_BUILD_NUMBER }}"
+      -
+        name: Create Release Bundle
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "=== Generating Release Bundle ==="
+          echo '
+                {
+                  "builds": [
+                    {
+                      "name": "${{ env.JFROG_CLI_BUILD_NAME }}",
+                      "number": "${{ env.JFROG_CLI_BUILD_NUMBER }}",
+                      "project": "${{ env.JFROG_CLI_BUILD_PROJECT }}"
+                    }
+                  ]
+                }
+          ' > builds.json
+          jf release-bundle-create --builds=./builds.json --project ${{ env.JFROG_CLI_BUILD_PROJECT }} --signing-key fredericg-gpg "${{ env.webgoatArtifactName }}" "${{ env.webgoatVersion }}"

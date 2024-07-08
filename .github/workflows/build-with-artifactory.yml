@@ -86,16 +86,20 @@ jobs:
         name: Create Release Bundle
         if: github.ref == 'refs/heads/main'
         run: |
-          echo "=== Generating Release Bundle ==="
-          echo '
-                {
-                  "builds": [
-                    {
-                      "name": "${{ env.JFROG_CLI_BUILD_NAME }}",
-                      "number": "${{ env.JFROG_CLI_BUILD_NUMBER }}",
-                      "project": "${{ env.JFROG_CLI_BUILD_PROJECT }}"
-                    }
-                  ]
-                }
-          ' > builds.json
-          jf release-bundle-create --builds=./builds.json --project ${{ env.JFROG_CLI_BUILD_PROJECT }} --signing-key fredericg-gpg "${{ env.webgoatArtifactName }}" "${{ env.webgoatVersion }}"
+          if [[ `jf rt curl -s -XGET /api/v2/release_bundle/records/webgoat/${{ env.webgoatVersion }}?project=fg | jq .created` == "null" ]] ; then
+            echo "=== Generating Release Bundle ==="
+            echo '
+                  {
+                    "builds": [
+                      {
+                        "name": "${{ env.JFROG_CLI_BUILD_NAME }}",
+                        "number": "${{ env.JFROG_CLI_BUILD_NUMBER }}",
+                        "project": "${{ env.JFROG_CLI_BUILD_PROJECT }}"
+                      }
+                    ]
+                  } 
+            ' > builds.json
+            jf release-bundle-create --builds=./builds.json --project ${{ env.JFROG_CLI_BUILD_PROJECT }} --signing-key fredericg-gpg "${{ env.webgoatArtifactName }}" "${{ env.webgoatVersion }}"
+          else
+            echo "=== Release Bundle already exists ==="
+          fi

@@ -49,6 +49,10 @@ jobs:
           echo "webgoatArtifactName=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> $GITHUB_ENV
           echo "webgoatVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
       -
+        name: Configure JFrog CLI
+        run : |
+          jf mvn-config --repo-resolve-releases fg-maven --repo-resolve-snapshots fg-maven --repo-deploy-releases fg-maven-dev-local-releases --repo-deploy-snapshots fg-maven-dev-local-snapshots
+      -
         name: Run Curation Audit
         run: |
           jf curation-audit
@@ -59,7 +63,6 @@ jobs:
       -
         name: Build Maven package
         run: |
-          jf mvn-config --repo-resolve-releases fg-maven --repo-resolve-snapshots fg-maven --repo-deploy-releases fg-maven-dev-local-releases --repo-deploy-snapshots fg-maven-dev-local-snapshots
           jf mvn clean install -DskipTests=true --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
       -
         name: Scan Maven package

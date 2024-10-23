@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v4
       -
         name: Set up JDK 21
-        uses: actions/setup-java@v4.2.1
+        uses: actions/setup-java@v4
         with:
             distribution: 'temurin'
             java-version: 21
@@ -48,6 +48,10 @@ jobs:
         run: |
           echo "webgoatArtifactName=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)" >> $GITHUB_ENV
           echo "webgoatVersion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+      -
+        name: Run Curation Audit
+        run: |
+          jf curation-audit
       -
         name: Run Source Code Audit
         run: |

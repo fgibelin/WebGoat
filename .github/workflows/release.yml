@@ -21,13 +21,7 @@ jobs:
           distribution: 'temurin'
           java-version: 21
           architecture: x64
-
-      - name: Cache Maven packages
-        uses: actions/cache@v4.0.2
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          cache: 'maven'
 
       - name: "Set labels for ${{ github.ref }}"
         run: |
@@ -88,7 +82,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: "Build and push WebGoat"
-        uses: docker/build-push-action@v6.7.0
+        uses: docker/build-push-action@v6.10.0
         with:
           context: ./
           file: ./Dockerfile
@@ -101,7 +95,7 @@ jobs:
             webgoat_version=${{ env.WEBGOAT_MAVEN_VERSION }}
 
       - name: "Build and push WebGoat desktop"
-        uses: docker/build-push-action@v6.7.0
+        uses: docker/build-push-action@v6.10.0
         with:
           context: ./
           file: ./Dockerfile_desktop

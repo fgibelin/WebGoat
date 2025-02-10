@@ -63,7 +63,7 @@ jobs:
       -
         name: Build Maven package
         run: |
-          jf mvn clean install -DskipTests=true --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
+          jf mvn -B clean install -DskipTests=true --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
       -
         name: Scan Maven package
         run: |

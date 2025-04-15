@@ -73,7 +73,8 @@ jobs:
         name: Deploy Maven package to Artifactory
         if: github.ref == 'refs/heads/main'
         run: |
-          jf mvn deploy -Dmaven.main.skip=true -Dmaven.install.skip=true -DskipTests --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
+          ls -lR /tmp/jfrog
+          jf mvn -B deploy -Dmaven.main.skip=true -Dmaven.install.skip=true -DskipTests --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
       -
         name: Build Docker image
         if: github.ref == 'refs/heads/main'

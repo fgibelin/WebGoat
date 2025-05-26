@@ -1,4 +1,5 @@
 name: "Build WebGoat with JFrog Artifactory"
+
 on:
   push:
     branches:
@@ -7,6 +8,13 @@ on:
     branches:
       - main
   workflow_dispatch:
+
+# Define environment variables for the workflow
+env:
+  JFROG_CLI_BUILD_NAME: 'WebGoat from GitHub workflow'
+  JFROG_CLI_BUILD_NUMBER: ${{ github.run_number }}
+  JFROG_CLI_BUILD_PROJECT: ${{ vars.JF_PROJECT }}
+  JFROG_CLI_LOG_LEVEL: INFO
 
 jobs:
   build:
@@ -18,12 +26,6 @@ jobs:
         java:
           - '23'
     runs-on: ${{ matrix.os }}
-
-    env:
-      JFROG_CLI_BUILD_NAME: 'WebGoat from GitHub workflow'
-      JFROG_CLI_BUILD_NUMBER: ${{ github.run_number }}
-      JFROG_CLI_BUILD_PROJECT: ${{ vars.JF_PROJECT }}
-      JFROG_CLI_LOG_LEVEL: DEBUG
 
     steps:
       -

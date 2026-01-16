@@ -1,4 +1,3 @@
-# Use the official devcontainer Java image as the base
 FROM mcr.microsoft.com/devcontainers/java:1.1.23-bullseye
 
 # Set environment variables
@@ -12,13 +11,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     git \
     build-essential \
-    python3 \
-    python3-pip \
-    docker.io \
-    maven=3.9.12 \
     && rm -rf /var/lib/apt/lists/*
 
-# Verify Maven installation
+# Install Maven 3.9.12
+RUN wget https://dlcdn.apache.org/maven/maven-3/3.9.12/binaries/apache-maven-3.9.12-bin.tar.gz /tmp/
+RUN tar xvzf /tmp/apache-maven-3.9.12-bin.tar.gz /usr/lib/
+RUN ln -s /usr/lib/apache-maven-3.9.12-bin/bin/mvn /usr/bin/mvn
 RUN mvn -version
 
 # Install Node.js (for potential frontend development)

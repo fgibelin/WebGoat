@@ -14,7 +14,7 @@
       "settings": {
         "java.configuration.runtimes": [
           {
-            "name": "JavaSE-21",
+            "name": "JavaSE-23",
             "path": "/usr/local/sdkman/candidates/java/current",
             "default": true
           }

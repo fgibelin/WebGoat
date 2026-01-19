@@ -40,6 +40,8 @@ jobs:
           JF_USER: ${{ secrets.JF_USER }}
           JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
           MAVEN_OPTS: "$MAVEN_OPTS -Dorg.slf4j.simpleLogger.defaultLogLevel=debug"
+        with:
+          version: 2.88.0
       -
         name: Read POM
         run: |

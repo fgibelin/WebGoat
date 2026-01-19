@@ -5,7 +5,7 @@ on:
 
 # Define environment variables for the workflow
 env:
-  JFROG_CLI_BUILD_NAME: 'WebGoat from GitHub workflow'
+  JFROG_CLI_BUILD_NAME: 'denv-github-webgoat-build'
   JFROG_CLI_BUILD_NUMBER: ${{ github.run_number }}
   JFROG_CLI_BUILD_PROJECT: ${{ vars.JF_PROJECT }}
   JFROG_CLI_LOG_LEVEL: INFO
@@ -36,7 +36,7 @@ jobs:
         name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4
         env:
-          JF_URL: ${{ vars.JF_URL }}
+          JF_URL: https://${{ secrets.JF_URL }}
           JF_USER: ${{ secrets.JF_USER }}
           JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
           MAVEN_OPTS: "$MAVEN_OPTS -Dorg.slf4j.simpleLogger.defaultLogLevel=debug"
@@ -48,7 +48,7 @@ jobs:
       -
         name: Configure JFrog CLI
         run : |
-          jf mvn-config --repo-resolve-releases fg-maven --repo-resolve-snapshots fg-maven --repo-deploy-releases fg-maven-dev-local-releases --repo-deploy-snapshots fg-maven-dev-local-snapshots
+          jf mvn-config --repo-resolve-releases denv-maven --repo-resolve-snapshots denv-maven --repo-deploy-releases denv-maven-dev-local-releases --repo-deploy-snapshots denv-maven-dev-local-snapshots
       -
         name: Run Curation Audit
         run: |
@@ -75,13 +75,13 @@ jobs:
         name: Build Docker image
         if: github.ref == 'refs/heads/main'
         run: |
-          jf docker build -f Dockerfile -t soleng.jfrog.io/fg-docker/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} .
-          jf docker push soleng.jfrog.io/fg-docker/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
+          jf docker build -f Dockerfile -t ${{ secrets.JF_URL }}/denv-docker/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} .
+          jf docker push ${{ secrets.JF_URL }}/denv-docker/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
       -
         name: Scan Docker image
         if: github.ref == 'refs/heads/main'
         run: |
-          jf docker scan soleng.jfrog.io/fg-docker/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --severity='HIGH,CRITICAL'
+          jf docker scan ${{ secrets.JF_URL }}/denv-docker/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --severity='HIGH,CRITICAL'
       -
         name: Publish build info
         if: github.ref == 'refs/heads/main'
@@ -91,7 +91,7 @@ jobs:
         name: Create Release Bundle
         if: github.ref == 'refs/heads/main'
         run: |
-          if [[ `jf rt curl -s -XGET /api/v2/release_bundle/records/webgoat/${{ env.webgoatVersion }}?project=fg | jq .created` == "null" ]] ; then
+          if [[ `jf rt curl -s -XGET /api/v2/release_bundle/records/webgoat/${{ env.webgoatVersion }}?project=denv | jq .created` == "null" ]] ; then
             echo "=== Generating Release Bundle ==="
             echo '
                   {

@@ -9,6 +9,7 @@ env:
   JFROG_CLI_BUILD_NUMBER: ${{ github.run_number }}
   JFROG_CLI_BUILD_PROJECT: ${{ vars.JF_PROJECT }}
   JFROG_CLI_LOG_LEVEL: INFO
+  
 
 jobs:
   build:
@@ -56,7 +57,7 @@ jobs:
       -
         name: Configure JFrog CLI
         run : |
-          jf mvn-config --repo-resolve-releases denv-maven --repo-resolve-snapshots denv-maven --repo-deploy-releases denv-maven-dev-local-releases --repo-deploy-snapshots denv-maven-dev-local-snapshots
+          jf mvn-config --repo-resolve-releases dro-maven-virtual --repo-resolve-snapshots dro-maven-virtual --repo-deploy-releases dro-maven-dev-local --repo-deploy-snapshots dro-maven-dev-local
       # -
       #   name: Run Curation Audit
       #   run: |
@@ -83,36 +84,36 @@ jobs:
         name: Build Docker image
         if: github.ref == 'refs/heads/main'
         run: |
-          jf docker build -f Dockerfile -t ${{ secrets.JF_URL }}/denv-docker/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} .
-          jf docker push ${{ secrets.JF_URL }}/denv-docker/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
-      -
-        name: Scan Docker image
-        if: github.ref == 'refs/heads/main'
-        run: |
-          jf docker scan ${{ secrets.JF_URL }}/denv-docker/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --severity='HIGH,CRITICAL'
-      -
-        name: Publish build info
-        if: github.ref == 'refs/heads/main'
-        run: |
-          jf rt build-publish --project ${{ env.JFROG_CLI_BUILD_PROJECT }} "${{ env.JFROG_CLI_BUILD_NAME }}" "${{ env.JFROG_CLI_BUILD_NUMBER }}"
-      -
-        name: Create Release Bundle
-        if: github.ref == 'refs/heads/main'
-        run: |
-          if [[ `jf rt curl -s -XGET /api/v2/release_bundle/records/webgoat/${{ env.webgoatVersion }}?project=denv | jq .created` == "null" ]] ; then
-            echo "=== Generating Release Bundle ==="
-            echo '
-                  {
-                    "builds": [
-                      {
-                        "name": "${{ env.JFROG_CLI_BUILD_NAME }}",
-                        "number": "${{ env.JFROG_CLI_BUILD_NUMBER }}",
-                        "project": "${{ env.JFROG_CLI_BUILD_PROJECT }}"
-                      }
-                    ]
-                  } 
-            ' > builds.json
-            jf release-bundle-create --builds=./builds.json --project ${{ env.JFROG_CLI_BUILD_PROJECT }} --signing-key fredericg-gpg "${{ env.webgoatArtifactName }}" "${{ env.webgoatVersion }}"
-          else
-            echo "=== Release Bundle already exists ==="
-          fi
+          jf docker build -f Dockerfile -t ${{ secrets.JF_URL }}/dro-dro-docker-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} .
+          jf docker push ${{ secrets.JF_URL }}/dro-dro-docker-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
+      # -
+      #   name: Scan Docker image
+      #   if: github.ref == 'refs/heads/main'
+      #   run: |
+      #     jf docker scan ${{ secrets.JF_URL }}/denv-docker/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --severity='HIGH,CRITICAL'
+      # -
+      #   name: Publish build info
+      #   if: github.ref == 'refs/heads/main'
+      #   run: |
+      #     jf rt build-publish --project ${{ env.JFROG_CLI_BUILD_PROJECT }} "${{ env.JFROG_CLI_BUILD_NAME }}" "${{ env.JFROG_CLI_BUILD_NUMBER }}"
+      # -
+      #   name: Create Release Bundle
+      #   if: github.ref == 'refs/heads/main'
+      #   run: |
+      #     if [[ `jf rt curl -s -XGET /api/v2/release_bundle/records/webgoat/${{ env.webgoatVersion }}?project=denv | jq .created` == "null" ]] ; then
+      #       echo "=== Generating Release Bundle ==="
+      #       echo '
+      #             {
+      #               "builds": [
+      #                 {
+      #                   "name": "${{ env.JFROG_CLI_BUILD_NAME }}",
+      #                   "number": "${{ env.JFROG_CLI_BUILD_NUMBER }}",
+      #                   "project": "${{ env.JFROG_CLI_BUILD_PROJECT }}"
+      #                 }
+      #               ]
+      #             } 
+      #       ' > builds.json
+      #       jf release-bundle-create --builds=./builds.json --project ${{ env.JFROG_CLI_BUILD_PROJECT }} --signing-key fredericg-gpg "${{ env.webgoatArtifactName }}" "${{ env.webgoatVersion }}"
+      #     else
+      #       echo "=== Release Bundle already exists ==="
+      #     fi

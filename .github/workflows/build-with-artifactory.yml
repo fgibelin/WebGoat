@@ -78,14 +78,13 @@ jobs:
         name: Deploy Maven package to Artifactory
         if: github.ref == 'refs/heads/main'
         run: |
-          ls -lR /tmp/jfrog
           jf mvn -B deploy -Dmaven.main.skip=true -Dmaven.install.skip=true -DskipTests --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
       -
         name: Build Docker image
         if: github.ref == 'refs/heads/main'
         run: |
-          jf docker build -f Dockerfile -t ${{ secrets.JF_URL }}/dro-dro-docker-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} .
-          jf docker push ${{ secrets.JF_URL }}/dro-dro-docker-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
+          jf docker build -f Dockerfile -t ${{ secrets.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} .
+          jf docker push ${{ secrets.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
       # -
       #   name: Scan Docker image
       #   if: github.ref == 'refs/heads/main'

@@ -25,19 +25,19 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v4
-      # -
-      #   name: Setup JDK 23
-      #   uses: actions/setup-java@v4
-      #   with:
-      #     java-version: ${{matrix.java}}
-      #     distribution: 'adopt'
-      #     cache: maven
       -
-        name: Setup Maven
-        uses: s4u/setup-maven-action@v1.19.0
+        name: Setup JDK 23
+        uses: actions/setup-java@v4
         with:
-          java-version: 23
-          maven-version: 3.9.8
+          java-version: ${{matrix.java}}
+          distribution: 'adopt'
+          cache: maven
+      # -
+      #   name: Setup Maven
+      #   uses: s4u/setup-maven-action@v1.19.0
+      #   with:
+      #     java-version: 23
+      #     maven-version: 3.9.8
       - 
         name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4.9.1
@@ -68,7 +68,7 @@ jobs:
       -
         name: Build Maven package
         run: |
-          jf mvn -B clean install -DskipTests=true --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
+          mvn -B clean install -DskipTests=true
       -
         name: Scan Maven package
         run: |

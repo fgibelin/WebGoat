@@ -75,11 +75,11 @@ jobs:
         name: Scan Maven package
         run: |
           jf scan --licenses --format=json --fail=false ./target/${{ env.webgoatArtifactName }}-${{ env.webgoatVersion }}.jar
-      # -
-      #   name: Deploy Maven package to Artifactory
-      #   if: github.ref == 'refs/heads/main'
-      #   run: |
-      #     jf mvn -B deploy -Dmaven.main.skip=true -Dmaven.install.skip=true -DskipTests --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
+      -
+        name: Deploy Maven package to Artifactory
+        if: github.ref == 'refs/heads/main'
+        run: |
+          jf mvn -B deploy -Dmaven.main.skip=true -Dmaven.install.skip=true -DskipTests --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
       -
         name: Build Docker image
         if: github.ref == 'refs/heads/main'

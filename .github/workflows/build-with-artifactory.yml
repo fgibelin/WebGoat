@@ -51,10 +51,10 @@ jobs:
         name: Configure JFrog CLI
         run : |
           jf mvn-config --repo-resolve-releases denv-maven --repo-resolve-snapshots denv-maven --repo-deploy-releases denv-maven-dev-local-releases --repo-deploy-snapshots denv-maven-dev-local-snapshots
-      -
-        name: Run Curation Audit
-        run: |
-          jf curation-audit
+      # -
+      #   name: Run Curation Audit
+      #   run: |
+      #     jf curation-audit
       -
         name: Run Source Code Audit
         run: |

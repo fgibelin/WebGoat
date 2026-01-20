@@ -34,7 +34,8 @@ jobs:
       #     cache: maven
       -
         name: Setup Maven
-        uses: s4u/setup-maven-action
+        uses: s4u/setup-maven-action@1.19.0
+        with:
           java-version: 23
           maven-version: 3.9.8
       - 

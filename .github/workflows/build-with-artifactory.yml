@@ -73,7 +73,7 @@ jobs:
       -
         name: Scan Maven package
         run: |
-          jf scan --licenses --format=json --mvn=true --fail=false ./target/${{ env.webgoatArtifactName }}-${{ env.webgoatVersion }}.jar
+          jf scan --licenses --format=json --fail=false ./target/${{ env.webgoatArtifactName }}-${{ env.webgoatVersion }}.jar
       -
         name: Deploy Maven package to Artifactory
         if: github.ref == 'refs/heads/main'

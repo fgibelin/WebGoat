@@ -87,11 +87,11 @@ jobs:
         run: |
           jf docker build -f Dockerfile -t ${{ secrets.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} .
           jf docker push ${{ secrets.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
-      # -
-      #   name: Scan Docker image
-      #   if: github.ref == 'refs/heads/main'
-      #   run: |
-      #     jf docker scan ${{ secrets.JF_URL }}/denv-docker/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --severity='HIGH,CRITICAL'
+      -
+        name: Scan Docker image
+        if: github.ref == 'refs/heads/main'
+        run: |
+          jf docker scan ${{ secrets.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --fail=false --vuln
       # -
       #   name: Publish build info
       #   if: github.ref == 'refs/heads/main'

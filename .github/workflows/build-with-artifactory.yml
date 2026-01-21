@@ -44,7 +44,7 @@ jobs:
         name: Setup JFrog CLI
         uses: jfrog/setup-jfrog-cli@v4.9.1
         env:
-          JF_URL: https://${{ secrets.JF_URL }}
+          JF_URL: https://${{ vars.JF_URL }}
           JF_USER: ${{ secrets.JF_USER }}
           JF_PASSWORD: ${{ secrets.JF_PASSWORD }}
           MAVEN_OPTS: "$MAVEN_OPTS -Dorg.slf4j.simpleLogger.defaultLogLevel=debug"
@@ -85,13 +85,13 @@ jobs:
         name: Build Docker image
         if: github.ref == 'refs/heads/main'
         run: |
-          jf docker build -f Dockerfile -t ${{ secrets.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} .
-          jf docker push ${{ secrets.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
+          jf docker build -f Dockerfile -t ${{ vars.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} .
+          jf docker push ${{ vars.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
       -
         name: Scan Docker image
         if: github.ref == 'refs/heads/main'
         run: |
-          jf docker scan ${{ secrets.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --fail=false --vuln
+          jf docker scan ${{ vars.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --fail=false --vuln
       # -
       #   name: Publish build info
       #   if: github.ref == 'refs/heads/main'

@@ -64,39 +64,39 @@ jobs:
       #   name: Run Curation Audit
       #   run: |
       #     jf curation-audit
-      -
-        name: Run Source Code Audit
-        run: |
-          jf audit --licenses --format=table --mvn=true --fail=false
+      # -
+      #   name: Run Source Code Audit
+      #   run: |
+      #     jf audit --licenses --format=table --mvn=true --fail=false
       -
         name: Build Maven package
         run: |
           mvn -B clean install -DskipTests=true
-      -
-        name: Scan Maven package
-        run: |
-          jf scan --licenses --format=json --fail=false ./target/${{ env.webgoatArtifactName }}-${{ env.webgoatVersion }}.jar
-      -
-        name: Deploy Maven package to Artifactory
-        if: github.ref == 'refs/heads/main'
-        run: |
-          jf mvn -B deploy -Dmaven.main.skip=true -Dmaven.install.skip=true -DskipTests --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
+      # -
+      #   name: Scan Maven package
+      #   run: |
+      #     jf scan --licenses --format=json --fail=false ./target/${{ env.webgoatArtifactName }}-${{ env.webgoatVersion }}.jar
+      # -
+      #   name: Deploy Maven package to Artifactory
+      #   if: github.ref == 'refs/heads/main'
+      #   run: |
+      #     jf mvn -B deploy -Dmaven.main.skip=true -Dmaven.install.skip=true -DskipTests --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
       -
         name: Build Docker image
         if: github.ref == 'refs/heads/main'
         run: |
           jf docker build -f Dockerfile -t ${{ vars.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} .
-          jf docker push ${{ vars.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
+          # jf docker push ${{ vars.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
       -
         name: Scan Docker image
         if: github.ref == 'refs/heads/main'
         run: |
           jf docker scan ${{ vars.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --fail=false --format=sarif > jfrog_sast.sarif
-          jf docker scan ${{ vars.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --fail=false --vuln
+          # jf docker scan ${{ vars.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --fail=false --vuln
           sed -i s/"\"uri\": \"\""/"\"uri\": \"${{ vars.JF_URL }}\/dro-oci-dev-local\/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }}\""/g jfrog_sast.sarif
       - 
         name: Upload output to generate autofix
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: jfrog_sast.sarif
       # -

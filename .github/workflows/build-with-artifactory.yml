@@ -91,7 +91,7 @@ jobs:
         name: Scan Docker image
         if: github.ref == 'refs/heads/main'
         run: |
-          jf docker scan ${{ vars.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --fail=false --format=sarif > jfrog_sast.sarif
+          jf docker scan ${{ vars.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --fail=false --vuln --format=sarif > jfrog_sast.sarif
           # jf docker scan ${{ vars.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --fail=false --vuln
           sed -i s/"\"uri\": \"\""/"\"uri\": \"${{ vars.JF_URL }}\/dro-oci-dev-local\/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }}\""/g jfrog_sast.sarif
           echo "=============================================="

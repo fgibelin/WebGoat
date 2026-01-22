@@ -27,13 +27,6 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v4
-      # -
-      #   name: Setup JDK 23
-      #   uses: actions/setup-java@v4
-      #   with:
-      #     java-version: ${{matrix.java}}
-      #     distribution: 'adopt'
-      #     cache: maven
       -
         name: Setup Maven
         uses: s4u/setup-maven-action@v1.19.0
@@ -61,18 +54,10 @@ jobs:
         name: Configure JFrog CLI
         run : |
           jf mvn-config --repo-resolve-releases dro-maven-virtual --repo-resolve-snapshots dro-maven-virtual --repo-deploy-releases dro-maven-dev-local --repo-deploy-snapshots dro-maven-dev-local
-      # -
-      #   name: Run Curation Audit
-      #   run: |
-      #     jf curation-audit
-      ##
       -
         name: Run Source Code Audit
         run: |
           jf audit --format=table --mvn=true --fail=false --vuln --format=sarif > jfrog_sast.sarif
-          echo "=============================================="
-          cat jfrog_sast.sarif
-          echo "=============================================="
       -
         name: Upload output to generate autofix
         uses: github/codeql-action/upload-sarif@v4
@@ -106,29 +91,3 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: |
           jf docker push ${{ vars.JF_URL }}/dro-oci-dev-local/${{ env.webgoatArtifactName }}:${{ env.webgoatVersion }} --project ${{ env.JFROG_CLI_BUILD_PROJECT }}
-      # -
-      #   name: Publish build info
-      #   if: github.ref == 'refs/heads/main'
-      #   run: |
-      #     jf rt build-publish --project ${{ env.JFROG_CLI_BUILD_PROJECT }} "${{ env.JFROG_CLI_BUILD_NAME }}" "${{ env.JFROG_CLI_BUILD_NUMBER }}"
-      # -
-      #   name: Create Release Bundle
-      #   if: github.ref == 'refs/heads/main'
-      #   run: |
-      #     if [[ `jf rt curl -s -XGET /api/v2/release_bundle/records/webgoat/${{ env.webgoatVersion }}?project=denv | jq .created` == "null" ]] ; then
-      #       echo "=== Generating Release Bundle ==="
-      #       echo '
-      #             {
-      #               "builds": [
-      #                 {
-      #                   "name": "${{ env.JFROG_CLI_BUILD_NAME }}",
-      #                   "number": "${{ env.JFROG_CLI_BUILD_NUMBER }}",
-      #                   "project": "${{ env.JFROG_CLI_BUILD_PROJECT }}"
-      #                 }
-      #               ]
-      #             } 
-      #       ' > builds.json
-      #       jf release-bundle-create --builds=./builds.json --project ${{ env.JFROG_CLI_BUILD_PROJECT }} --signing-key fredericg-gpg "${{ env.webgoatArtifactName }}" "${{ env.webgoatVersion }}"
-      #     else
-      #       echo "=== Release Bundle already exists ==="
-      #     fi

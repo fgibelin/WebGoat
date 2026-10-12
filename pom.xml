@@ -10,7 +10,7 @@
 
   <groupId>org.owasp.webgoat</groupId>
   <artifactId>webgoat</artifactId>
-  <version>2026.5-SNAPSHOT</version>
+  <version>2026.5</version>
   <packaging>jar</packaging>
 
   <name>WebGoat</name>
@@ -477,6 +477,8 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <configuration>
+          <!-- Let spring-boot:run read edited lesson resources without a Maven resource copy. -->
+          <addResources>true</addResources>
           <excludeDevtools>true</excludeDevtools>
           <executable>true</executable>
           <mainClass>org.owasp.webgoat.server.StartWebGoat</mainClass>
